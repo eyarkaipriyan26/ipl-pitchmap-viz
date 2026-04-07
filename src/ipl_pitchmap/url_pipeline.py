@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 
 SERIES_ID_PATTERN = re.compile(r"/series/[^/]*-(?P<series_id>\d+)/")
-MATCH_ID_PATTERN = re.compile(r"-(?P<match_id>\d+)(?:\?|$)")
+MATCH_ID_PATTERN = re.compile(r"-(?P<id>\d+)(?=/|\?|$)")
 
 
 @dataclass
@@ -21,10 +21,10 @@ def parse_series_id(series_url: str) -> str:
 
 
 def parse_match_id(match_url: str) -> str:
-    match = MATCH_ID_PATTERN.search(match_url)
-    if not match:
+    matches = MATCH_ID_PATTERN.findall(match_url)
+    if not matches:
         raise ValueError(f"Could not parse match id from URL: {match_url}")
-    return match.group("match_id")
+    return matches[-1]
 
 
 def load_series_refs(csv_path: str) -> list[SeriesRef]:

@@ -1,19 +1,18 @@
 # IPL Pitchmap Viz
 
-This repository now includes a working **pitchmap visualization output** from ball-by-ball commentary text.
+This repo now supports the full pipeline:
 
-## Current workflow
-
-1. Load IPL series schedule URLs and extract series IDs.
-2. Build/collect commentary rows (`ipl_year, match_id, over_ball, bowler, batter, commentary`).
-3. Map commentary text to a **6 x 5 pitch grid** using line/length phrase matching.
-4. Render a confidence-weighted pitchmap as a standalone HTML file.
+1. Take IPL season fixture URLs.
+2. Crawl match URLs for each season.
+3. Scrape ball-by-ball commentary from each match page.
+4. Map commentary to a 6x5 pitch grid with confidence.
+5. Render RHB/LHB pitchmap visualization as HTML.
 
 ## Structure
 
 - `data/ipl_series_urls.csv`: IPL season schedule URLs (2008-2026).
-- `data/sample_commentary.csv`: sample commentary input for visualization testing.
-- `src/ipl_pitchmap/url_pipeline.py`: series/match ID parsing.
+- `data/sample_commentary.csv`: sample commentary input for quick visualization checks.
+- `src/ipl_pitchmap/scraper.py`: schedule crawling + commentary scraping.
 - `src/ipl_pitchmap/pitch_mapper.py`: line + length extraction and confidence scoring.
 - `src/ipl_pitchmap/pitchmap_viz.py`: grid aggregation and HTML/SVG visualization renderer.
 - `src/ipl_pitchmap/cli.py`: command line interface.
@@ -21,19 +20,27 @@ This repository now includes a working **pitchmap visualization output** from ba
 ## Commands
 
 ```bash
+# Quick check: parse season IDs
 python -m src.ipl_pitchmap.cli series --csv data/ipl_series_urls.csv
-python -m src.ipl_pitchmap.cli build-pitchmap --input-csv data/sample_commentary.csv --output-html artifacts/pitchmap.html
+
+# Real scrape: all commentary rows (use --years for targeted runs)
+python -m src.ipl_pitchmap.cli scrape-full-commentary \
+  --series-csv data/ipl_series_urls.csv \
+  --output-csv data/ipl_commentary_full.csv \
+  --years 2024 2025
+
+# Build pitchmap from scraped CSV
+python -m src.ipl_pitchmap.cli build-pitchmap \
+  --input-csv data/ipl_commentary_full.csv \
+  --output-html artifacts/pitchmap.html
 ```
-
-Then open `artifacts/pitchmap.html` in your browser.
-
-## Notes
-
-- This design intentionally uses commentary text (publicly available) instead of unavailable ball-tracking coordinates.
-- If only line or length is detected, that ball still contributes with lower confidence.
-- You can later enrich rows with batter hand (`RHB/LHB`) and bowler arm for split visuals.
-
 
 ## GitHub Pages
 
-To publish quickly, copy `artifacts/pitchmap.html` to `docs/index.html` and enable Pages from the `/docs` folder.
+- Keep `docs/index.html` as the published entrypoint.
+- After regenerating `artifacts/pitchmap.html`, copy it to `docs/index.html` and push.
+
+## Notes
+
+- Commentary schema on source pages can change over time; scraper is defensive and extracts from embedded `__NEXT_DATA__` JSON.
+- If a ball has only line or only length text, it is still counted with lower confidence.
