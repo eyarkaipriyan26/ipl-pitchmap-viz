@@ -32,3 +32,8 @@ Then open `artifacts/pitchmap.html` in your browser.
 - This design intentionally uses commentary text (publicly available) instead of unavailable ball-tracking coordinates.
 - If only line or length is detected, that ball still contributes with lower confidence.
 - You can later enrich rows with batter hand (`RHB/LHB`) and bowler arm for split visuals.
+
+
+## GitHub Pages
+
+To publish quickly, copy `artifacts/pitchmap.html` to `docs/index.html` and enable Pages from the `/docs` folder.
