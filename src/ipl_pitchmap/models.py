@@ -10,6 +10,7 @@ class BallCommentary:
     bowler: str
     batter: str
     commentary: str
+    batter_hand: str = "RHB"
 
 
 @dataclass

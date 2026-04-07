@@ -1,28 +1,34 @@
-# IPL Pitchmap Viz (Starter)
+# IPL Pitchmap Viz
 
-This repository now contains a starter pipeline for your phased approach:
+This repository now includes a working **pitchmap visualization output** from ball-by-ball commentary text.
+
+## Current workflow
 
 1. Load IPL series schedule URLs and extract series IDs.
-2. (Next step) fetch each match URL/ID for each season.
-3. (Next step) scrape ball-by-ball commentary.
-4. Map commentary text to a **6 x 5 pitch grid** with confidence scoring.
+2. Build/collect commentary rows (`ipl_year, match_id, over_ball, bowler, batter, commentary`).
+3. Map commentary text to a **6 x 5 pitch grid** using line/length phrase matching.
+4. Render a confidence-weighted pitchmap as a standalone HTML file.
 
 ## Structure
 
-- `data/ipl_series_urls.csv`: Seed list of IPL schedule URLs (2008-2026).
-- `src/ipl_pitchmap/url_pipeline.py`: URL parsing for series and match IDs.
-- `src/ipl_pitchmap/pitch_mapper.py`: Rules to infer line/length buckets + confidence.
-- `src/ipl_pitchmap/models.py`: Core dataclasses.
-- `src/ipl_pitchmap/cli.py`: Small CLI entrypoint.
+- `data/ipl_series_urls.csv`: IPL season schedule URLs (2008-2026).
+- `data/sample_commentary.csv`: sample commentary input for visualization testing.
+- `src/ipl_pitchmap/url_pipeline.py`: series/match ID parsing.
+- `src/ipl_pitchmap/pitch_mapper.py`: line + length extraction and confidence scoring.
+- `src/ipl_pitchmap/pitchmap_viz.py`: grid aggregation and HTML/SVG visualization renderer.
+- `src/ipl_pitchmap/cli.py`: command line interface.
 
-## Run
+## Commands
 
 ```bash
 python -m src.ipl_pitchmap.cli series --csv data/ipl_series_urls.csv
+python -m src.ipl_pitchmap.cli build-pitchmap --input-csv data/sample_commentary.csv --output-html artifacts/pitchmap.html
 ```
+
+Then open `artifacts/pitchmap.html` in your browser.
 
 ## Notes
 
-- The mapper is intentionally heuristic because true ball-tracking coordinates are not public for all matches.
-- Missing line or length is handled by `UNKNOWN_*` with lower confidence.
-- Batter hand and bowler arm can be injected later to adjust sections.
+- This design intentionally uses commentary text (publicly available) instead of unavailable ball-tracking coordinates.
+- If only line or length is detected, that ball still contributes with lower confidence.
+- You can later enrich rows with batter hand (`RHB/LHB`) and bowler arm for split visuals.
